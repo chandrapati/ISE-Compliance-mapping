@@ -1,8 +1,8 @@
-# Cisco ISE Framework Scope Design Guide
+# Cisco ISE and Cisco Secure Workload Framework Scope Design Guide
 
-Customer-facing scope and product mapping patterns for Cisco ISE campus segmentation compliance workshops.
+Customer-facing scope and product mapping patterns for Cisco ISE campus segmentation and Cisco Secure Workload (CSW) workload segmentation compliance workshops.
 
-Use this guide before a proof-of-value, deployment planning workshop, or evidence-readiness discussion. It helps teams translate framework language into practical ISE policy sets, identity groups, endpoint groups, SGTs, authorization profiles, network device groups, and enforcement boundaries.
+Use this guide before a proof-of-value, deployment planning workshop, or evidence-readiness discussion. It helps teams translate framework language into practical ISE policy sets, identity groups, endpoint groups, SGTs, authorization profiles, network device groups, CSW scopes, workload labels, ADM workspaces, policies, and enforcement boundaries.
 
 These patterns are starting points. Validate final scope with the customer's architecture, operations, compliance, and assessor teams.
 
@@ -14,6 +14,19 @@ These patterns are starting points. Validate final scope with the customer's arc
 4. Treat ISE as a policy decision and evidence source. ISE can authorize access and produce logs for network admission. It does not replace business process controls, asset ownership, vulnerability management, EDR, backup, GRC, or assessor judgment.
 5. Reconcile campus coverage. Validate which switches, wireless controllers, VPN headends, firewalls, Meraki networks, and third-party NADs actually send RADIUS/TACACS+/pxGrid telemetry and can enforce the intended controls.
 6. Keep non-enforceable gaps explicit. Unmanaged hubs, unmanaged switches, legacy printers, OT endpoints, non-802.1X devices, unsupported NADs, and internet/SaaS controls usually require compensating controls.
+7. Bridge campus identity to workload scope. ISE answers "who or what is allowed onto this network segment"; CSW answers "which workloads can communicate after that access is granted." For compliance evidence, map ISE SGTs, VLANs, sites, user roles, and device classes to CSW application scopes, workload labels, ADM workspaces, and segmentation policies.
+
+## ISE and CSW Joint Segmentation Model
+
+ISE and CSW are complementary rather than interchangeable.
+
+| Layer | ISE role | CSW role | Joint compliance value |
+|---|---|---|---|
+| Access identity | Authenticates and authorizes users, devices, guests, admins, contractors, and vendors through RADIUS/TACACS+ | Consumes workload identity, labels, inventory, and process context for application scope design | Links who/what entered the network to which protected applications and services they can reach |
+| Campus enforcement | Enforces VLAN, dACL, SGT, SGACL, quarantine, redirect, and device-admin controls through campus NADs | Enforces workload-to-workload policy on supported servers, VMs, and cloud workloads | Covers both north-south access and east-west application segmentation |
+| Policy vocabulary | Uses identity groups, endpoint groups, network device groups, SGTs, authorization profiles, and policy sets | Uses scopes, labels, ADM workspaces, discovered dependencies, policies, and inventory attributes | Creates shared compliance language across network, application, cloud, and audit teams |
+| Evidence | Provides authentication, authorization, posture, profiling, guest/BYOD, and device-admin logs | Provides flow evidence, policy enforcement state, workload inventory, package/process visibility, and scope hierarchy | Produces stronger audit packets by correlating access decisions with application communication evidence |
+| Gap handling | Shows unmanaged devices, failed auth, unknown endpoints, and unsupported NADs | Shows uninstrumented workloads, unsupported platforms, policy exceptions, and observed flows outside intended scope | Makes compensating controls explicit before an audit or segmentation sign-off |
 
 ## Framework Scope Design Table
 
@@ -36,20 +49,49 @@ These patterns are starting points. Validate final scope with the customer's arc
 | NIST CSF 2.0 | CSF Profile outcomes and campus network contribution to risk reduction | `CSF-Campus` > `Govern-Evidence`, `Identify-Assets`, `Protect-Access`, `Detect-Network`, `Respond-Incident`, `Recover-Access` | Technical evidence feeding GV, ID, PR, DE, RS, and RC outcomes | ISE, Catalyst Center, Secure Firewall, Secure Network Analytics, XDR, Splunk, ThousandEyes | CSF is an outcomes framework. Risk appetite, profile ownership, enterprise reporting, recovery, and governance require GRC, executive dashboards, BC/DR, and risk platforms |
 | CMMC 2.0 | FCI/CUI access boundary, CUI-connected users/devices, and admin access | `CMMC-Campus` > `CUI-Users`, `CUI-Devices`, `FCI-Systems`, `CUI-Connected`, `Admin`, `Guest`, `External` | AC, AU, CM, IA, RA, SC, and SI technical evidence for network admission and segmentation | ISE, Duo, Catalyst/SD-Access, Secure Firewall, Secure Endpoint, Splunk, Secure Network Analytics | CMMC requires SSP, POA&M, CUI scoping, assessment evidence, endpoint hardening, vulnerability management, and C3PAO assessment. Use ServiceNow/Archer, Tenable/Qualys, M365 GCC High controls where applicable, and evidence portals |
 
-## ISE Policy Constructs
+## CSW Workload Scope Overlay
 
-| Construct | Workshop use | Evidence value |
+Use this overlay with the framework table above. The ISE pattern defines campus admission and access segmentation; the CSW pattern defines application and workload communication boundaries after access has been granted.
+
+| Framework | Suggested CSW scope overlay | Combined ISE + CSW evidence narrative |
 |---|---|---|
-| Policy Sets | Separate campus, wireless, VPN, device admin, guest, and regulated access logic | Shows explicit access-control boundaries and policy intent |
-| Identity Groups | Map employees, privileged admins, contractors, vendors, and service accounts | Supports user-based access evidence |
-| Endpoint Identity Groups | Map managed endpoints, unknown devices, printers, cameras, POS, medical/OT, and IoT | Supports device classification and exception review |
-| Profiling Policies | Identify device types and confidence levels | Supports asset discovery and unmanaged-device evidence |
-| Posture Conditions | Validate endpoint state before sensitive access | Supports conditional access and risk reduction |
-| Authorization Profiles | Return VLAN, SGT, dACL, ACL, URL redirect, quarantine, or deny actions | Shows enforcement behavior tied to policy decisions |
-| Security Group Tags | Carry identity/device context through the campus fabric | Supports scalable segmentation and least-privilege access |
-| Network Device Groups | Separate sites, buildings, floors, device roles, and administrative domains | Supports location and administrative-scope reporting |
-| TACACS+ Command Sets | Control network-device administration | Supports privileged network admin evidence |
-| pxGrid Integrations | Share identity/context with firewalls, SIEM, endpoint, and analytics tools | Supports correlation and cross-product response |
+| HIPAA Security Rule | `Healthcare-Workloads` > `ePHI-Zone`, `EHR`, `Billing`, `PACS`, `HL7`, `BAA-Egress` | ISE proves only authorized clinical users/devices entered the right network segment; CSW proves ePHI workloads communicate only over intended paths and that partner egress is visible |
+| SOC 2 Type II | `SOC2-System` > `Production`, `Supporting-Infra`, `Admin-Access`, `Vendor-Integrations` | ISE supports workforce/admin/vendor access controls; CSW supports production system boundary, workload dependency, drift, and segmentation evidence |
+| PCI DSS v4.0 | `PCI-Environment` > `CDE`, `CDE-Connected`, `Security-Services`, `Third-Party-Processors`, `Out-of-Scope-Validation` | ISE reduces access into CDE-connected networks; CSW documents CDE application flows, policy exceptions, and segmentation validation for workloads |
+| NIST SP 800-53 Rev. 5 | `System-Boundary` > `Moderate`, `High`, `App-Tier`, `Data-Store`, `Management`, `Shared-Services` | ISE contributes AC/IA/AU evidence at network access; CSW contributes AC/CM/RA/SC/SI evidence for workload inventory, communication, vulnerability context, and policy |
+| ISO/IEC 27001:2022 | `ISMS-Boundary` > `Confidential-Data`, `Business-Critical-Apps`, `Cloud-Services`, `Supplier-Connections` | ISE supports Annex A access and network controls; CSW supports network segregation, monitoring, supplier-egress, vulnerability, and asset evidence for scoped workloads |
+| CISA Zero Trust Maturity Model | `ZT-Workloads` > `Sensitive-Apps`, `Privileged-Admin`, `Inter-App-Flows`, `External-Dependencies` | ISE covers identity/device/network access maturity; CSW covers application/workload visibility, least privilege, and continuous policy verification |
+| FIPS 140 | `Crypto-Review` > `Sensitive-Transport`, `Plaintext-Protocol-Candidates`, `FIPS-Required-Systems` | ISE helps prove secure management/access paths; CSW helps identify plaintext workload communications and systems needing deeper cryptographic review |
+| NIST SP 800-207 | `ZTA-Resources` > `Protected-Resources`, `Policy-Enforced-Flows`, `Observed-Dependencies`, `Exceptions` | ISE acts as a campus access decision and enforcement layer; CSW acts as a workload policy enforcement and telemetry layer for protected resources |
+| NIST SP 800-207A | `ZTA-Components` > `CSW-PEP-Analogue`, `Policy-Workspace`, `Telemetry-PIP`, `Exception-Review` | ISE and NADs map to access PEP/PDP analogues; CSW maps to workload PEP, policy workspace, and workload telemetry PIP analogues |
+| DORA | `DORA-IBF` > one scope per important business function, with `Critical`, `Supporting`, `Third-Party-Egress`, `Incident-Dossier` | ISE shows who and what accessed IBF-supporting campus networks; CSW shows the workload dependency map and segmentation posture for the IBF |
+| NIS2 | `NIS2-Service` > `Essential-Service`, `Important-Service`, `Supplier-Egress`, `Incident-Reporting`, `High-Risk-Workloads` | ISE supports access and supplier controls; CSW supports service dependency visibility, workload risk context, and incident evidence |
+| NERC CIP | `BES-Supporting-IT` > `EACMS`, `Jump-Hosts`, `Vendor-Access`, `BCSI-Hosts`, `Identity-PKI`, `Patch-Repos` | ISE supports IT-side access and device-admin control; CSW supports IT workload paths around jump hosts, patch repos, identity services, and vendor access systems |
+| TSA Pipeline Security Directive | `Pipeline-IT-Estate` > `OT-Facing-IT`, `CCS-Supporting-IT`, `Vendor-Access`, `Patch-Repositories`, `Corporate-IT` | ISE controls user/device access into pipeline-supporting networks; CSW documents IT-side workload flows that support OT-facing and Critical Cyber System functions |
+| CIS Controls v8.1 | `CIS-IG2` > `Enterprise-Assets`, `Software-Inventory`, `Secure-Config`, `Vuln-Exposure`, `Network-Monitoring` | ISE contributes asset/access evidence; CSW contributes workload software/package, flow, policy, vulnerability, and monitoring evidence |
+| NIST CSF 2.0 | `CSF-Profile` > `Govern-Evidence`, `Identify-Assets`, `Protect-Segmentation`, `Detect-Monitoring`, `Respond-Dossier`, `Recover-Diff` | ISE feeds PR/DE access evidence; CSW feeds ID/PR/DE/RS/RC workload and segmentation evidence |
+| CMMC 2.0 | `CMMC-Scope` > `CUI-Enclave`, `FCI-Systems`, `CUI-Connected`, `Admin-Access`, `External-Services`, `Out-of-Scope-Validation` | ISE helps prove only authorized users/devices reach CUI networks; CSW helps prove CUI workloads are scoped, monitored, and segmented from connected and external services |
+
+## ISE and CSW Policy Constructs
+
+| Construct | Platform | Workshop use | Evidence value |
+|---|---|---|---|
+| Policy Sets | ISE | Separate campus, wireless, VPN, device admin, guest, and regulated access logic | Shows explicit access-control boundaries and policy intent |
+| Identity Groups | ISE | Map employees, privileged admins, contractors, vendors, and service accounts | Supports user-based access evidence |
+| Endpoint Identity Groups | ISE | Map managed endpoints, unknown devices, printers, cameras, POS, medical/OT, and IoT | Supports device classification and exception review |
+| Profiling Policies | ISE | Identify device types and confidence levels | Supports asset discovery and unmanaged-device evidence |
+| Posture Conditions | ISE | Validate endpoint state before sensitive access | Supports conditional access and risk reduction |
+| Authorization Profiles | ISE | Return VLAN, SGT, dACL, ACL, URL redirect, quarantine, or deny actions | Shows enforcement behavior tied to policy decisions |
+| Security Group Tags | ISE / TrustSec | Carry identity/device context through the campus fabric | Supports scalable segmentation and least-privilege access |
+| Network Device Groups | ISE | Separate sites, buildings, floors, device roles, and administrative domains | Supports location and administrative-scope reporting |
+| TACACS+ Command Sets | ISE | Control network-device administration | Supports privileged network admin evidence |
+| pxGrid Integrations | ISE / Cisco ecosystem | Share identity/context with firewalls, SIEM, endpoint, analytics, and response tools | Supports correlation and cross-product response |
+| App Scopes | CSW | Define application, data, compliance, and service boundaries for workloads | Supports workload segmentation evidence and audit scoping |
+| Labels | CSW | Tag workloads by app, owner, environment, data class, criticality, and compliance boundary | Creates reusable policy and evidence dimensions |
+| ADM Workspaces | CSW | Discover application dependencies and generate candidate workload policies | Supports dependency documentation and segmentation design |
+| Inventory and Flow Search | CSW | Investigate workloads, packages, processes, ports, protocols, and communications | Supports evidence for observed access paths and risk review |
+| Workspace Policies | CSW | Enforce or simulate workload-to-workload communication rules | Shows application segmentation control design and exceptions |
+| Policy Analysis and Reports | CSW | Compare observed flows, enforced policy, and scope hierarchy | Supports audit packets, drift review, and incident dossiers |
 
 ## Campus Label / Group Recommendations
 
@@ -64,10 +106,13 @@ These patterns are starting points. Validate final scope with the customer's arc
 | `posture_state` | `compliant`, `non-compliant`, `unknown`, `quarantine` | Supports conditional access decisions |
 | `exception_status` | `none`, `temporary`, `approved`, `expired` | Keeps compensating controls visible |
 | `owner` | `network`, `security`, `clinical-engineering`, `retail-it`, `ot` | Assigns remediation and policy ownership |
+| `csw_scope` | `cde`, `ephi`, `cui`, `ibf-payments`, `prod-app` | Connects campus access groups to workload/application scopes |
+| `workload_app` | `payments-api`, `ehr-core`, `identity`, `patch-repo` | Aligns ISE access decisions to CSW application policies |
+| `segmentation_layer` | `campus`, `workload`, `cloud`, `ot`, `hybrid` | Makes clear whether ISE, CSW, firewalls, or other controls enforce the boundary |
 
 ## Customer Conversation Prompt
 
-The practical question is not "can ISE map to this framework?" It is:
+The practical question is not "can ISE or CSW map to this framework?" It is:
 
-> Which identities, devices, locations, posture states, and enforcement points must be correct before campus segmentation becomes evidence the customer can validate with their assessor?
+> Which identities, devices, locations, posture states, workload scopes, application dependencies, and enforcement points must be correct before campus and workload segmentation become evidence the customer can validate with their assessor?
 

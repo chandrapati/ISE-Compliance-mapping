@@ -1,18 +1,20 @@
 # Cisco ISE Compliance Mapping
 
 Customer-facing scope and product mapping patterns for Cisco Identity Services Engine
-(ISE) campus segmentation and compliance workshops.
+(ISE), Cisco Secure Workload (CSW), campus segmentation, workload segmentation,
+and compliance workshops.
 
 This repository adapts the scope-design style from the Cisco Secure Workload
-compliance mapping work to the campus network. It focuses on how Cisco ISE,
-802.1X/MAB, TrustSec Security Group Tags (SGTs), downloadable ACLs, posture,
-pxGrid, and campus enforcement points can support compliance evidence and
-segmentation design.
+compliance mapping work to the campus network and connects it to workload
+segmentation. It focuses on how Cisco ISE, 802.1X/MAB, TrustSec Security Group
+Tags (SGTs), downloadable ACLs, posture, pxGrid, campus enforcement points, CSW
+scopes, workload labels, ADM workspaces, and workload policies can support
+compliance evidence and segmentation design.
 
 ## What This Repo Provides
 
-- `framework-scope-design.md` - framework-by-framework campus segmentation
-  mapping for ISE.
+- `framework-scope-design.md` - framework-by-framework campus and workload
+  segmentation mapping for ISE and CSW.
 - `product-sufficiency-matrix.md` - where Cisco products are enough, where
   additional Cisco products are needed, and where outside products may be needed.
 - `workshop-checklist.md` - practical discovery questions and workshop
@@ -21,6 +23,7 @@ segmentation design.
 ## Primary Cisco Products In Scope
 
 - Cisco Identity Services Engine (ISE)
+- Cisco Secure Workload (CSW)
 - Cisco Catalyst Center / SD-Access
 - Cisco Catalyst switches, wireless controllers, and access points
 - Cisco TrustSec / SGT-aware enforcement
@@ -36,13 +39,18 @@ segmentation design.
 
 ISE is strongest for identity-aware access control, campus segmentation,
 network admission control, device profiling, guest/BYOD control, posture signals,
-and SGT-based policy. It is not a complete compliance platform by itself.
+and SGT-based policy. CSW is strongest for workload inventory, application scope
+design, workload-to-workload flow evidence, ADM-driven policy design, and
+application segmentation enforcement. Neither product is a complete compliance
+platform by itself.
 
 For most frameworks, ISE supplies technical evidence for network access,
-segmentation, authentication, authorization, and device classification. It should
-be paired with authoritative inventory, identity governance, vulnerability
-management, endpoint protection, SIEM, GRC, backup, privacy, and audit workflows
-as required by the specific framework.
+segmentation, authentication, authorization, and device classification. CSW
+supplies technical evidence for workload scope, observed application flows,
+segmentation policy, workload inventory, process/package context, and application
+dependency review. They should be paired with authoritative inventory, identity
+governance, vulnerability management, endpoint protection, SIEM, GRC, backup,
+privacy, and audit workflows as required by the specific framework.
 
 ## Important Caveat
 
