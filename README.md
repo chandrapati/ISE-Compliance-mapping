@@ -22,6 +22,18 @@ compliance evidence and segmentation design.
 - `workshop-checklist.md` - practical discovery questions and workshop
   outputs for an ISE compliance mapping session.
 
+## Related Guides
+
+- **Wiring ISE into Secure Workload (technical how-to).** This repo covers
+  the *compliance scope and product mapping*; for the hands-on integration —
+  building the **pxGrid client certificate**, signing it on an enterprise CA,
+  and onboarding the **CSW ISE connector** over mutual TLS — see the
+  ISE / pxGrid section of the
+  [CSW Identity Integration Guide](https://github.com/chandrapati/CSW-Identity-Integration-Guide/tree/main/ise-pxgrid).
+  That guide turns the pxGrid integration referenced here into a repeatable
+  runbook (overview & trust model, certificate setup, connector config,
+  troubleshooting).
+
 ## Primary Cisco Products In Scope
 
 - Cisco Identity Services Engine (ISE)
